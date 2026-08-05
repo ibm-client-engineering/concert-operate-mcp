@@ -1,0 +1,41 @@
+{
+  "name": "concert-operate-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for IBM Concert Operate (AIOps) v2 API",
+  "type": "module",
+  "author": "IBM Client Engineering",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ibm",
+    "concert-operate",
+    "aiops",
+    "observability",
+    "incident-management",
+    "concert-operate-5"
+  ],
+  "concertOperateCompatibility": ">=5.1.0 <6.0.0",  
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ibm-client-engineering/concert-operate-mcp.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "bin": {
+    "concert-operate-mcp": "build/index.js"
+  },
+  "files": [
+    "build"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  }
+}

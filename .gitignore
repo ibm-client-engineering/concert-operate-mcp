@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build output
+build/
+
+# Environment / secrets — never commit these
+.env
+.env.*
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# MCP Inspector config
+inspector-config.json
