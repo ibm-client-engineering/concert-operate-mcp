@@ -221,7 +221,7 @@ The server authenticates against the CPD platform auth endpoint (`/icp4d-api/v1/
 
 ## Development
 
-```bash
+```powershell
 git clone https://github.com/ibm-client-engineering/concert-operate-mcp
 cd concert-operate-mcp
 npm install
@@ -229,9 +229,43 @@ npm run build        # compiles src/index.ts → build/index.js
 npm run dev          # watch mode
 ```
 
+To test locally with the MCP Inspector:
+
+```powershell
+$env:CONCERT_BASE_URL="https://your-instance.example.com"
+$env:CONCERT_CPD_USER="cpadmin"
+$env:CONCERT_CPD_PASSWORD="yourpassword"
+npx @modelcontextprotocol/inspector node build/index.js
+```
+## Releasing a new version
+
+1. Make and test your changes
+2. Run `npm run build` to confirm it compiles cleanly
+3. Bump the version and create the git tag:
+
+    ```powershell
+    npm version patch   # bug fix:        1.0.0 → 1.0.1
+    npm version minor   # new endpoints:  1.0.0 → 1.1.0
+    npm version major   # breaking change (new Concert major): 1.0.0 → 2.0.0
+    ```
+4. Push the commit and tag:
+
+    ```powershell
+    git push --follow-tags
+    ```
+
+The GitHub Actions workflow triggers automatically on the tag push, builds the package, and publishes it to npm. No manual npm publish needed.
+
+### Version compatibility
+| npm package major | Concert Operate version |
+|---|---|
+| 1.x | 5.1.x |
+
+When a new major Concert Operate version introduces breaking API changes, bump the npm major version and update this table.
+
 ## Contributing
 
-Issues and pull requests welcome. When adding tools for a new API version, please update the compatibility table at the top of this README.
+Issues and pull requests welcome. When adding tools for a new API version, please update the compatibility table above.
 
 ## License
 
