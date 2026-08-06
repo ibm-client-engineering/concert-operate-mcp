@@ -18,3 +18,6 @@ Thumbs.db
 
 # MCP Inspector config
 inspector-config.json
+
+# Bob MCP config — template is tracked; local credential edits are ignored
+.bob/mcp.json
