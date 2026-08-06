@@ -240,39 +240,34 @@ npx @modelcontextprotocol/inspector node build/index.js
 
 ### Testing directly inside Bob (IBM Bob IDE)
 
-The repo ships a `.bob/mcp.json` that registers the local build as an MCP server inside Bob.
-Bob hot-reloads it automatically when you open the folder — no manual registration needed.
+The repo ships a `.bob/mcp.json.sample` template. Copy it to `.bob/mcp.json`, fill in your credentials, and Bob will register the local build as an MCP server automatically when you open the folder.
+
+`.bob/mcp.json` is listed in `.gitignore` so it is never tracked by git — your credentials stay local.
 
 **First-time setup:**
 
-1. Fill in your real credentials in `.bob/mcp.json`:
+1. Copy the sample and fill in your credentials:
 
-    ```json
-    {
-      "mcpServers": {
-        "concert-operate": {
-          "command": "node",
-          "args": ["build/index.js"],
-          "cwd": "${workspaceFolder}",
-          "env": {
-            "CONCERT_BASE_URL": "https://your-instance.example.com",
-            "CONCERT_CPD_USER": "cpadmin",
-            "CONCERT_CPD_PASSWORD": "yourpassword"
-          }
-        }
-      }
-    }
+    On Windows (PowerShell):
+    ```powershell
+    Copy-Item .bob/mcp.json.sample .bob/mcp.json
     ```
 
-    `.bob/mcp.json` is listed in `.gitignore` so your local changes will never be committed.
+    On macOS / Linux:
+    ```bash
+    cp .bob/mcp.json.sample .bob/mcp.json
+    ```
+
+    Then open `.bob/mcp.json` and replace the three placeholder values:
+    - `CONCERT_BASE_URL` → your Concert Operate base URL
+    - `CONCERT_CPD_USER` → your CPD username
+    - `CONCERT_CPD_PASSWORD` → your CPD password
 
 2. Run `npm run build` (or `npm run dev` for watch mode) — Bob connects to the freshly compiled `build/index.js`.
 
 3. Open the **MCP panel** in Bob and confirm the `concert-operate` server is listed with all its tools.
 
 After any source change, re-run `npm run build`. The server restarts automatically on the next tool call.
-
-> **Note:** Until credentials are filled in the server will fail to connect silently — this is expected for a fresh clone.
 
 ### Troubleshooting the Bob MCP connection
 
