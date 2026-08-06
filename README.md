@@ -17,7 +17,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server for **
 
 ### Option A — npx (recommended, no install required)
 
-Add the following to your MCP client config (e.g. `mcp.json` for Bob, `settings.json` for GitHub Copilot, `~/.cursor/mcp.json` for Cursor):
+Add the following to your MCP client config (e.g. `mcp.json` for Bob, `.vscode/mcp.json` for GitHub Copilot in VSCode (change "mcpServers" to "servers"), `~/.cursor/mcp.json` for Cursor):
 
 ```json
 {
