@@ -237,6 +237,102 @@ $env:CONCERT_CPD_USER="cpadmin"
 $env:CONCERT_CPD_PASSWORD="yourpassword"
 npx @modelcontextprotocol/inspector node build/index.js
 ```
+
+### Testing directly inside Bob (IBM Bob IDE)
+
+The repo ships a `.bob/mcp.json` that registers the local build as an MCP server inside Bob.
+Bob hot-reloads it automatically when you open the folder — no manual registration needed.
+
+**First-time setup:**
+
+1. Fill in your real credentials in `.bob/mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "concert-operate": {
+          "command": "node",
+          "args": ["build/index.js"],
+          "cwd": "${workspaceFolder}",
+          "env": {
+            "CONCERT_BASE_URL": "https://your-instance.example.com",
+            "CONCERT_CPD_USER": "cpadmin",
+            "CONCERT_CPD_PASSWORD": "yourpassword"
+          }
+        }
+      }
+    }
+    ```
+
+    `.bob/mcp.json` is listed in `.gitignore` so your local changes will never be committed.
+
+2. Run `npm run build` (or `npm run dev` for watch mode) — Bob connects to the freshly compiled `build/index.js`.
+
+3. Open the **MCP panel** in Bob and confirm the `concert-operate` server is listed with all its tools.
+
+After any source change, re-run `npm run build`. The server restarts automatically on the next tool call.
+
+> **Note:** Until credentials are filled in the server will fail to connect silently — this is expected for a fresh clone.
+
+### Troubleshooting the Bob MCP connection
+
+**1. Confirm the build exists**
+
+```powershell
+Test-Path build/index.js
+```
+
+```bash
+ls build/index.js
+```
+
+If missing, run `npm run build` first.
+
+**2. Run the server manually**
+
+This is the fastest way to see a raw error. The server speaks stdio, so a clean start will block silently waiting for input — that's correct. Any output before that is an error.
+
+On Windows (PowerShell):
+```powershell
+$env:CONCERT_BASE_URL="https://your-instance.example.com"
+$env:CONCERT_CPD_USER="cpadmin"
+$env:CONCERT_CPD_PASSWORD="yourpassword"
+node build/index.js
+```
+
+On macOS / Linux:
+```bash
+CONCERT_BASE_URL="https://your-instance.example.com" \
+CONCERT_CPD_USER="cpadmin" \
+CONCERT_CPD_PASSWORD="yourpassword" \
+node build/index.js
+```
+
+**3. Check the Bob MCP logs**
+
+The quickest way is the **Output panel**: in Bob open **View → Output** and select **IBM Bob MCP** from the dropdown — this streams the live log.
+
+To open the log files directly:
+
+On Windows, the logs are under `%APPDATA%\IBM Bob\logs\<session>\<window>\exthost\IBM.bob-code\`. Open the two most relevant files from a terminal:
+```powershell
+# List sessions newest-first to find the right <session> folder
+Get-ChildItem "$env:APPDATA\IBM Bob\logs" | Sort-Object Name -Descending | Select-Object -First 3 Name
+
+# Open the MCP log for the most recent session (replace <session> and <window>)
+code "$env:APPDATA\IBM Bob\logs\<session>\<window>\exthost\IBM.bob-code\IBM Bob MCP.log"
+code "$env:APPDATA\IBM Bob\logs\<session>\mcpGateway.log"
+```
+
+On macOS, the equivalent paths are under `~/Library/Application Support/IBM Bob/logs/` with the same structure:
+```bash
+# List sessions newest-first
+ls -t ~/Library/Application\ Support/IBM\ Bob/logs/ | head -3
+
+# Open the MCP log (replace <session> and <window>)
+open ~/Library/Application\ Support/IBM\ Bob/logs/<session>/<window>/exthost/IBM.bob-code/IBM\ Bob\ MCP.log
+```
+
 ## Releasing a new version
 
 1. Make and test your changes

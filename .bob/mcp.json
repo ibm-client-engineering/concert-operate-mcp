@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "concert-operate": {
+      "command": "node",
+      "args": ["build/index.js"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "CONCERT_BASE_URL": "https://your-instance.example.com",
+        "CONCERT_CPD_USER": "cpadmin",
+        "CONCERT_CPD_PASSWORD": "yourpassword"
+      }
+    }
+  }
+}
