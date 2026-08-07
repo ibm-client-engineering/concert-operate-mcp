@@ -1,6 +1,6 @@
 {
   "name": "concert-operate-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server for IBM Concert Operate (AIOps) v2 API",
   "type": "module",
   "author": "IBM Client Engineering",
@@ -15,7 +15,7 @@
     "incident-management",
     "concert-operate-5"
   ],
-  "concertOperateCompatibility": ">=5.1.0 <6.0.0",  
+  "concertOperateCompatibility": ">=5.1.0 <6.0.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ibm-client-engineering/concert-operate-mcp.git"
