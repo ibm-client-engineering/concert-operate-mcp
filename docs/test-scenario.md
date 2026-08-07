@@ -191,16 +191,7 @@ Add a comment to the db-node-01 story/incident saying:
 
 ---
 
-### 3b. Attach a probable-cause insight
-
-**Prompt:**
-```
-Add a probable-cause insight to the db-node-01 Major alert. The insight should state that the root cause is connection pool exhaustion on db-node-01 caused by a spike in concurrent transactions from payment-service.
-```
-
----
-
-### 3c. Attach the runbook to the alert
+### 3b. Attach the runbook to the alert
 
 **Prompt:**
 ```
@@ -209,7 +200,7 @@ Attach the "Database Node Recovery" runbook to the db-node-01 Major alert as a r
 
 ---
 
-### 3d. Update the story with a status comment
+### 3c. Update the story with a status comment
 
 **Prompt:**
 ```
@@ -241,16 +232,6 @@ Event 1:
 - Condition: "connection-pool-exhausted"
 
 Event 2:
-- Summary: "Disk I/O saturation resolved — db-node-01 read/write performance restored"
-- Severity: 1 (Indeterminate/Clear)
-- Resource name: "db-node-01"
-- Resource type: "database"
-- Sender name: "monitoring-agent"
-- Event type: "resolution"
-- Classification: "Storage"
-- Condition: "io-saturation"
-
-Event 3:
 - Summary: "Query latency returned to baseline — db-node-01 SLA threshold no longer breached"
 - Severity: 1 (Indeterminate/Clear)
 - Resource name: "db-node-01"
@@ -260,7 +241,7 @@ Event 3:
 - Classification: "Performance"
 - Condition: "latency"
 
-Event 4:
+Event 3:
 - Summary: "payment-service upstream dependency restored — db-node-01 reachable"
 - Severity: 1 (Indeterminate/Clear)
 - Resource name: "payment-service"
@@ -273,37 +254,17 @@ Event 4:
 
 > Each resolution event must match the `classification` and `condition` of its corresponding
 > problem event exactly — this is what allows the pipeline to deduplicate and auto-close the
-> associated alert. If all four events are accepted and return `related-alert` insights, the
-> alerts and incidents will close automatically within a few seconds.
+> associated alert.
+>
+> When all member alerts of an incident transition to `clear` or `closed`, Concert Operate
+> automatically rolls that state up to the parent incident and marks it as resolved — no
+> manual incident update is required. If all three resolution events above are accepted and
+> each returns a `related-alert` insight, you should see both incidents disappear from the
+> active list within a few seconds as the platform handles full lifecycle resolution end-to-end.
 
 ---
 
-### 4b. Close any remaining open alerts
-
-**Prompt:**
-```
-Bulk-update all open alerts where the resource is "db-node-01" or "payment-service" and set their state to closed.
-```
-
----
-
-### 4c. Resolve the story
-
-**Prompt:**
-```
-Update the story/incident and mark it as resolved. Then add a comment saying:
-"Resolved: connection pool restarted on db-node-01, query latency returned to baseline, payment-service upstream dependency restored."
-```
-
-> ⚠️ **The incidents may already be gone.** If the resolution events in Phase 4a drove all
-> member alerts to `closed`, the platform automatically resolves and removes the incidents
-> from the active list — in which case this step will return 404 and can be skipped. Check
-> with `Get all incidents` first; if the list is empty, the pipeline handled full lifecycle
-> resolution automatically and no manual action is needed.
-
----
-
-### 4d. Verify the full alert timeline
+### 4b. Verify the full alert timeline
 
 **Prompt:**
 ```
@@ -382,5 +343,5 @@ Get all current alerts and incidents in Concert Operate. Confirm the system is e
 | 1 — Trigger | `create-event` × 3 |
 | 2 — Observe | `get-alerts`, `get-alert`, `get-incidents`, `get-incident`, `get-alert-timeline` |
 | 3 — Enrich | `add-incident-comment` × 2, `create-alert-insight` × 2 |
-| 4 — Resolve | `create-event`, `bulk-update-alerts`, `update-incident`, `add-incident-comment`, `get-alert-timeline` |
+| 4 — Resolve | `create-event` × 3, `get-alert-timeline` |
 | 5 — Teardown | `delete-runbook`, `bulk-update-alerts`, `update-policy` |
