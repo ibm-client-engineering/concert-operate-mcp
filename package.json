@@ -1,6 +1,6 @@
 {
   "name": "concert-operate-mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "MCP server for IBM Concert Operate (AIOps) v2 API",
   "type": "module",
   "author": "IBM Client Engineering",
