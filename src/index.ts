@@ -78,7 +78,7 @@ async function apiRequest(
   method: string,
   path: string,
   body?: unknown,
-  queryParams?: Record<string, string | boolean | undefined>
+  queryParams?: Record<string, string | boolean | number | undefined>
 ): Promise<unknown> {
   let url = `${BASE_URL}${path}`;
 
@@ -154,7 +154,7 @@ server.tool(
     event: z
       .record(z.unknown())
       .describe(
-        "Event payload object. Must include at minimum: summary (string), severity (1-6), sender.name, resource.name, resource.type."
+        "Event payload object. Must include at minimum: summary (string), severity (1-6), sender.name, resource.name, resource.type. occurrenceTime (ISO 8601) is injected automatically if omitted."
       ),
     wait_for_commit: z
       .boolean()
@@ -165,7 +165,11 @@ server.tool(
   },
   async ({ event, wait_for_commit }) => {
     try {
-      const data = await apiRequest("POST", "/aiops/api/v2/events", event, {
+      const payload = {
+        occurrenceTime: new Date().toISOString(),
+        ...event,
+      };
+      const data = await apiRequest("POST", "/aiops/api/v2/events", payload, {
         wait_for_commit,
       });
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -346,7 +350,7 @@ server.tool(
       const data = await apiRequest(
         "POST",
         `/aiops/api/v2/alerts/${alert_id}/timeline-entries`,
-        { type: "comment", text }
+        { type: "comment", comment: text }
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -538,7 +542,7 @@ server.tool(
       const data = await apiRequest(
         "POST",
         `/aiops/api/v2/incidents/${incident_id}/timeline-entries`,
-        { type: "comment", text }
+        { type: "comment", comment: text }
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -553,18 +557,24 @@ server.tool(
 
 server.tool(
   "get-policies",
-  "List all policies.",
+  "List all policies. Supports name search, state filtering, and pagination. Defaults to 20 results per page to keep responses manageable — increase paginationResponseSize if you need more.",
   {
-    fields: z.string().optional().describe("Comma-separated fields to return."),
+    policyName: z.string().optional().describe("Prefix search on policy name."),
+    state: z.enum(["enabled", "disabled", "draft", "archived"]).optional().describe("Filter by lifecycle state."),
+    paginationFrom: z.number().optional().describe("Pagination offset (default 0)."),
+    paginationResponseSize: z.number().optional().describe("Page size (default 20, max 1000)."),
   },
-  async ({ fields }) => {
+  async ({ policyName, state, paginationFrom, paginationResponseSize }) => {
     try {
-      const data = await apiRequest(
-        "GET",
-        "/aiops/api/v2/configuration/policies",
-        undefined,
-        { fields }
-      );
+      // The policies filter uses bracket-notation query params: filter[key]=value
+      // These are built into the path directly since apiRequest uses flat key=value serialisation.
+      const params = new URLSearchParams();
+      if (policyName) params.append("filter[policyName]", policyName);
+      params.append("filter[paginationFrom]", String(paginationFrom ?? 0));
+      params.append("filter[paginationResponseSize]", String(paginationResponseSize ?? 20));
+      if (state) params.append("state", state);
+      const path = `/aiops/api/v2/configuration/policies?${params.toString()}`;
+      const data = await apiRequest("GET", path);
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
       return { content: [{ type: "text", text: String(e) }], isError: true };

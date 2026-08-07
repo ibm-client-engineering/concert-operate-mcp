@@ -219,6 +219,10 @@ The server authenticates against the CPD platform auth endpoint (`/icp4d-api/v1/
 | `backup-topology-ui-config` | Backup topology UI configuration |
 | `restore-topology-ui-config` | Restore topology UI configuration |
 
+## Testing
+
+An end-to-end test scenario is available in [`docs/test-scenario.md`](docs/test-scenario.md). It walks through the full AIOps lifecycle — event ingestion → alert correlation → story creation → enrichment → resolution — using prompt-by-prompt instructions for Bob. No tool knowledge required; Bob calls the correct MCP tools automatically.
+
 ## Development
 
 ```powershell
