@@ -629,17 +629,18 @@ server.tool(
 
 server.tool(
   "update-policy",
-  "Partially update a policy by ID (PATCH).",
+  "Partially update a policy by ID (PATCH). Supported fields: policyname (string), policystate (string, e.g. 'enabled' or 'disabled'), commenttext (string).",
   {
     policy_id: z.string(),
-    updates: z.record(z.unknown()),
+    updates: z.record(z.unknown()).describe("Fields to update. Supported keys: policyname, policystate, commenttext."),
   },
   async ({ policy_id, updates }) => {
     try {
       const data = await apiRequest(
         "PATCH",
         `/aiops/api/v2/configuration/policies/${policy_id}`,
-        updates
+        undefined,
+        updates as Record<string, string | boolean | undefined>
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
