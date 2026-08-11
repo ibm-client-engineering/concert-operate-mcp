@@ -28,12 +28,14 @@ Add the following to your MCP client config (e.g. `mcp.json` for Bob, `.vscode/m
       "env": {
         "CONCERT_BASE_URL": "https://your-instance.example.com",
         "CONCERT_CPD_USER": "cpadmin",
-        "CONCERT_CPD_PASSWORD": "yourpassword"
+        "CONCERT_CPD_API_KEY": "your-cpd-api-key"
       }
     }
   }
 }
 ```
+
+> **Password-based auth:** If your Concert instance uses local CPD accounts instead of an external IdP, replace `CONCERT_CPD_API_KEY` with `CONCERT_CPD_PASSWORD`. Only one of the two is required.
 
 ### Option B — global install
 
@@ -52,7 +54,7 @@ Then use `concert-operate-mcp` as the command instead of `npx`:
       "env": {
         "CONCERT_BASE_URL": "https://your-instance.example.com",
         "CONCERT_CPD_USER": "cpadmin",
-        "CONCERT_CPD_PASSWORD": "yourpassword"
+        "CONCERT_CPD_API_KEY": "your-cpd-api-key"
       }
     }
   }
@@ -76,7 +78,8 @@ Then point your MCP client at the absolute path to `build/index.js`.
 |---|---|---|---|
 | `CONCERT_BASE_URL` | ✅ | — | Base URL of your Concert Operate instance, e.g. `https://cpd.example.com` |
 | `CONCERT_CPD_USER` | ✅ | — | Cloud Pak for Data username |
-| `CONCERT_CPD_PASSWORD` | ✅ | — | Cloud Pak for Data password |
+| `CONCERT_CPD_API_KEY` | ✅ (or password) | — | CPD API key. Recommended for IdP/SSO users (OpenShift, IBM Verify, LDAP, etc.). Generate one from your CPD profile: **avatar → Profile and settings → API key → Generate new key**. |
+| `CONCERT_CPD_PASSWORD` | ✅ (or API key) | — | CPD password. Use for local CPD accounts only. |
 | `CONCERT_TENANT_ID` | ❌ | `cfd95b7e-3bc7-4006-a4a8-a73a79c71255` | Tenant ID. The default is the standard value shipped with every Concert Operate installation. Override only if your instance uses a custom tenant ID. |
 
 ### Self-signed certificates
@@ -238,7 +241,7 @@ To test locally with the MCP Inspector:
 ```powershell
 $env:CONCERT_BASE_URL="https://your-instance.example.com"
 $env:CONCERT_CPD_USER="cpadmin"
-$env:CONCERT_CPD_PASSWORD="yourpassword"
+$env:CONCERT_CPD_API_KEY="your-cpd-api-key"   # or: $env:CONCERT_CPD_PASSWORD="yourpassword"
 npx @modelcontextprotocol/inspector node build/index.js
 ```
 
@@ -262,10 +265,11 @@ The repo ships a `.bob/mcp.json.sample` template. Copy it to `.bob/mcp.json`, fi
     cp .bob/mcp.json.sample .bob/mcp.json
     ```
 
-    Then open `.bob/mcp.json` and replace the three placeholder values:
+    Then open `.bob/mcp.json` and fill in your values:
     - `CONCERT_BASE_URL` → your Concert Operate base URL
     - `CONCERT_CPD_USER` → your CPD username
-    - `CONCERT_CPD_PASSWORD` → your CPD password
+    - `CONCERT_CPD_API_KEY` → your CPD API key *(recommended for IdP/SSO users — generate from your CPD profile)*
+    - or swap `CONCERT_CPD_API_KEY` for `CONCERT_CPD_PASSWORD` if using a local CPD account
 
 2. Run `npm run build` (or `npm run dev` for watch mode) — Bob connects to the freshly compiled `build/index.js`.
 
@@ -295,7 +299,7 @@ On Windows (PowerShell):
 ```powershell
 $env:CONCERT_BASE_URL="https://your-instance.example.com"
 $env:CONCERT_CPD_USER="cpadmin"
-$env:CONCERT_CPD_PASSWORD="yourpassword"
+$env:CONCERT_CPD_API_KEY="your-cpd-api-key"   # or: $env:CONCERT_CPD_PASSWORD="yourpassword"
 node build/index.js
 ```
 
@@ -303,7 +307,7 @@ On macOS / Linux:
 ```bash
 CONCERT_BASE_URL="https://your-instance.example.com" \
 CONCERT_CPD_USER="cpadmin" \
-CONCERT_CPD_PASSWORD="yourpassword" \
+CONCERT_CPD_API_KEY="your-cpd-api-key" \
 node build/index.js
 ```
 

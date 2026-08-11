@@ -11,13 +11,14 @@ import * as https from "https";
 const BASE_URL = process.env.CONCERT_BASE_URL;
 const CPD_USER = process.env.CONCERT_CPD_USER;
 const CPD_PASSWORD = process.env.CONCERT_CPD_PASSWORD;
+const CPD_API_KEY = process.env.CONCERT_CPD_API_KEY;
 // Default is the product-standard tenant ID that ships with every Concert Operate install.
 // Override via CONCERT_TENANT_ID only if your instance uses a different value.
 const TENANT_ID = process.env.CONCERT_TENANT_ID ?? "cfd95b7e-3bc7-4006-a4a8-a73a79c71255";
 
-if (!BASE_URL || !CPD_USER || !CPD_PASSWORD) {
+if (!BASE_URL || !CPD_USER || (!CPD_PASSWORD && !CPD_API_KEY)) {
   console.error(
-    "ERROR: CONCERT_BASE_URL, CONCERT_CPD_USER, and CONCERT_CPD_PASSWORD must be set."
+    "ERROR: CONCERT_BASE_URL and CONCERT_CPD_USER must be set, along with either CONCERT_CPD_PASSWORD or CONCERT_CPD_API_KEY."
   );
   process.exit(1);
 }
@@ -37,7 +38,9 @@ let tokenExpiresAt: number = 0; // epoch ms
 
 async function fetchToken(): Promise<string> {
   const url = `${BASE_URL}/icp4d-api/v1/authorize`;
-  const body = JSON.stringify({ username: CPD_USER, password: CPD_PASSWORD });
+  const body = CPD_API_KEY
+    ? JSON.stringify({ username: CPD_USER, api_key: CPD_API_KEY })
+    : JSON.stringify({ username: CPD_USER, password: CPD_PASSWORD });
 
   const res = await fetch(url, {
     method: "POST",

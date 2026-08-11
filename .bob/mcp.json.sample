@@ -7,7 +7,10 @@
       "env": {
         "CONCERT_BASE_URL": "https://your-instance.example.com",
         "CONCERT_CPD_USER": "cpadmin",
-        "CONCERT_CPD_PASSWORD": "yourpassword"
+        // Use CONCERT_CPD_API_KEY (recommended for IdP/SSO users — generate one from your CPD profile)
+        // OR use CONCERT_CPD_PASSWORD for local CPD accounts. Only one is required.
+        "CONCERT_CPD_API_KEY": "your-cpd-api-key"
+        // "CONCERT_CPD_PASSWORD": "yourpassword"
       }
     }
   }
