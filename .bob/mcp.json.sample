@@ -1,16 +1,23 @@
+// ==============================================================================
+// IMPORTANT: JSON DOES NOT SUPPORT COMMENTS!
+// YOU MUST DELETE ALL COMMENT LINES (ALL LINES STARTING WITH //) BEFORE SAVING
+// THIS FILE AS .bob/mcp.json.
+// If any comments remain in .bob/mcp.json, JSON parsing will fail and Bob
+// will not load the MCP server.
+//
+// Authentication note:
+// Use CONCERT_CPD_API_KEY (recommended for IdP/SSO) OR swap it for
+// CONCERT_CPD_PASSWORD if using a local CPD account. Only one is required.
+// ==============================================================================
 {
   "mcpServers": {
     "concert-operate": {
       "command": "node",
       "args": ["build/index.js"],
-      "cwd": "${workspaceFolder}",
       "env": {
         "CONCERT_BASE_URL": "https://your-instance.example.com",
         "CONCERT_CPD_USER": "cpadmin",
-        // Use CONCERT_CPD_API_KEY (recommended for IdP/SSO users — generate one from your CPD profile)
-        // OR use CONCERT_CPD_PASSWORD for local CPD accounts. Only one is required.
         "CONCERT_CPD_API_KEY": "your-cpd-api-key"
-        // "CONCERT_CPD_PASSWORD": "yourpassword"
       }
     }
   }

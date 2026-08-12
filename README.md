@@ -266,6 +266,8 @@ The repo ships a `.bob/mcp.json.sample` template. Copy it to `.bob/mcp.json`, fi
     ```
 
     Then open `.bob/mcp.json` and fill in your values:
+    > **Note:** Ensure there are no comment lines (`//`) in `.bob/mcp.json`, as invalid JSON comments will prevent Bob from loading the server.
+
     - `CONCERT_BASE_URL` → your Concert Operate base URL
     - `CONCERT_CPD_USER` → your CPD username
     - `CONCERT_CPD_API_KEY` → your CPD API key *(recommended for IdP/SSO users — generate from your CPD profile)*
