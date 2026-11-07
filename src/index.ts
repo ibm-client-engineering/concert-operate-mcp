@@ -77,6 +77,19 @@ async function getToken(): Promise<string> {
 // HTTP helper
 // ---------------------------------------------------------------------------
 
+/**
+ * Encode a user-supplied value for safe use as a single URL path segment.
+ * encodeURIComponent escapes "/" and "\", but leaves "." untouched, so the
+ * dot-segments "." and ".." (which URL parsers collapse) are rejected outright.
+ */
+function seg(value: string | number): string {
+  const s = String(value);
+  if (s === "" || s === "." || s === "..") {
+    throw new Error(`Invalid path parameter: ${JSON.stringify(s)}`);
+  }
+  return encodeURIComponent(s);
+}
+
 async function apiRequest(
   method: string,
   path: string,
@@ -258,7 +271,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/alerts/${alert_id}`,
+        `/aiops/api/v2/alerts/${seg(alert_id)}`,
         undefined,
         { fields }
       );
@@ -283,7 +296,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PATCH",
-        `/aiops/api/v2/alerts/${alert_id}`,
+        `/aiops/api/v2/alerts/${seg(alert_id)}`,
         updates,
         { wait_for_commit }
       );
@@ -332,7 +345,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/alerts/${alert_id}/timeline-entries`
+        `/aiops/api/v2/alerts/${seg(alert_id)}/timeline-entries`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -352,7 +365,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "POST",
-        `/aiops/api/v2/alerts/${alert_id}/timeline-entries`,
+        `/aiops/api/v2/alerts/${seg(alert_id)}/timeline-entries`,
         { type: "comment", comment: text }
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -378,7 +391,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/alerts/${alert_id}/insights`,
+        `/aiops/api/v2/alerts/${seg(alert_id)}/insights`,
         undefined,
         { type }
       );
@@ -401,7 +414,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "POST",
-        `/aiops/api/v2/alerts/${alert_id}/insights`,
+        `/aiops/api/v2/alerts/${seg(alert_id)}/insights`,
         insight,
         { wait_for_commit }
       );
@@ -424,7 +437,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/alerts/${alert_id}/insights/${insight_id}/types/${encodeURIComponent(insight_type)}`
+        `/aiops/api/v2/alerts/${seg(alert_id)}/insights/${seg(insight_id)}/types/${seg(insight_type)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -445,7 +458,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/alerts/${alert_id}/insights/${insight_id}/types/${encodeURIComponent(insight_type)}`
+        `/aiops/api/v2/alerts/${seg(alert_id)}/insights/${seg(insight_id)}/types/${seg(insight_type)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -482,7 +495,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/incidents/${incident_id}`
+        `/aiops/api/v2/incidents/${seg(incident_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -503,7 +516,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PATCH",
-        `/aiops/api/v2/incidents/${incident_id}`,
+        `/aiops/api/v2/incidents/${seg(incident_id)}`,
         updates,
         { wait_for_commit }
       );
@@ -524,7 +537,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/incidents/${incident_id}/timeline-entries`
+        `/aiops/api/v2/incidents/${seg(incident_id)}/timeline-entries`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -544,7 +557,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "POST",
-        `/aiops/api/v2/incidents/${incident_id}/timeline-entries`,
+        `/aiops/api/v2/incidents/${seg(incident_id)}/timeline-entries`,
         { type: "comment", comment: text }
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -595,7 +608,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/policies/${policy_id}`
+        `/aiops/api/v2/configuration/policies/${seg(policy_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -651,7 +664,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PATCH",
-        `/aiops/api/v2/configuration/policies/${policy_id}`,
+        `/aiops/api/v2/configuration/policies/${seg(policy_id)}`,
         undefined,
         updates as Record<string, string | boolean | undefined>
       );
@@ -673,7 +686,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PUT",
-        `/aiops/api/v2/configuration/policies/${policy_id}`,
+        `/aiops/api/v2/configuration/policies/${seg(policy_id)}`,
         policy
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -693,7 +706,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/policies/${policy_id}`
+        `/aiops/api/v2/configuration/policies/${seg(policy_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -712,7 +725,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/policies/${policy_id}/status`
+        `/aiops/api/v2/configuration/policies/${seg(policy_id)}/status`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -731,7 +744,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/policies/${policy_id}/timeline-entries`
+        `/aiops/api/v2/configuration/policies/${seg(policy_id)}/timeline-entries`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -768,7 +781,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}`
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -804,7 +817,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PATCH",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}`,
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}`,
         updates
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -824,7 +837,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}`
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -843,7 +856,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}/versions`
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}/versions`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -863,7 +876,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}/version/${version}`
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}/version/${seg(version)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -882,7 +895,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}/references`
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}/references`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -901,7 +914,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}/stats`
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}/stats`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -924,7 +937,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "POST",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}/run`,
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}/run`,
         execution ?? {}
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -944,7 +957,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}/executions`
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}/executions`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -964,7 +977,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}/executions/${instance_id}`
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}/executions/${seg(instance_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -985,7 +998,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PATCH",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}/executions/${instance_id}`,
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}/executions/${seg(instance_id)}`,
         updates
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -1006,7 +1019,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/runbooks/${runbook_id}/executions/${instance_id}`
+        `/aiops/api/v2/configuration/runbooks/${seg(runbook_id)}/executions/${seg(instance_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1046,7 +1059,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/algorithms/${name}`
+        `/aiops/api/v2/configuration/algorithms/${seg(name)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1085,7 +1098,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/algorithms/${name}`
+        `/aiops/api/v2/configuration/algorithms/${seg(name)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1125,7 +1138,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/training/definitions/${name}`
+        `/aiops/api/v2/configuration/training/definitions/${seg(name)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1165,7 +1178,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PATCH",
-        `/aiops/api/v2/configuration/training/definitions/${name}`,
+        `/aiops/api/v2/configuration/training/definitions/${seg(name)}`,
         updates
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -1185,7 +1198,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/training/definitions/${name}`
+        `/aiops/api/v2/configuration/training/definitions/${seg(name)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1312,7 +1325,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/training/models/${version_id}`
+        `/aiops/api/v2/configuration/training/models/${seg(version_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1331,7 +1344,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/training/models/${version_id}`
+        `/aiops/api/v2/configuration/training/models/${seg(version_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1370,7 +1383,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/metering/jobs/${job_id}`
+        `/aiops/api/v2/metering/jobs/${seg(job_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1389,7 +1402,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/metering/jobs/${job_id}/status`
+        `/aiops/api/v2/metering/jobs/${seg(job_id)}/status`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1408,7 +1421,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/metering/jobs/${job_id}/result`
+        `/aiops/api/v2/metering/jobs/${seg(job_id)}/result`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1491,7 +1504,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PUT",
-        `/aiops/api/v2/configuration/user-preferences/_self/${key}`,
+        `/aiops/api/v2/configuration/user-preferences/_self/${seg(key)}`,
         { value }
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -1511,7 +1524,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/user-preferences/_self/${key}`
+        `/aiops/api/v2/configuration/user-preferences/_self/${seg(key)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1544,7 +1557,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/user-preferences/${user_id}`
+        `/aiops/api/v2/configuration/user-preferences/${seg(user_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1564,7 +1577,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/user-preferences/${user_id}/keys/${key}`
+        `/aiops/api/v2/configuration/user-preferences/${seg(user_id)}/keys/${seg(key)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1585,7 +1598,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PUT",
-        `/aiops/api/v2/configuration/user-preferences/${user_id}/keys/${key}`,
+        `/aiops/api/v2/configuration/user-preferences/${seg(user_id)}/keys/${seg(key)}`,
         { value }
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -1606,7 +1619,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/user-preferences/${user_id}/keys/${key}`
+        `/aiops/api/v2/configuration/user-preferences/${seg(user_id)}/keys/${seg(key)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1625,7 +1638,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/user-preferences/${user_id}`
+        `/aiops/api/v2/configuration/user-preferences/${seg(user_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1660,7 +1673,7 @@ server.tool(
   },
   async ({ tool_id }) => {
     try {
-      const data = await apiRequest("GET", `/aiops/api/v2/configuration/tools/${tool_id}`);
+      const data = await apiRequest("GET", `/aiops/api/v2/configuration/tools/${seg(tool_id)}`);
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
       return { content: [{ type: "text", text: String(e) }], isError: true };
@@ -1695,7 +1708,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PATCH",
-        `/aiops/api/v2/configuration/tools/${tool_id}`,
+        `/aiops/api/v2/configuration/tools/${seg(tool_id)}`,
         updates
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -1715,7 +1728,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/tools/${tool_id}`
+        `/aiops/api/v2/configuration/tools/${seg(tool_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1750,7 +1763,7 @@ server.tool(
   },
   async ({ menu_id }) => {
     try {
-      const data = await apiRequest("GET", `/aiops/api/v2/configuration/menus/${menu_id}`);
+      const data = await apiRequest("GET", `/aiops/api/v2/configuration/menus/${seg(menu_id)}`);
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
       return { content: [{ type: "text", text: String(e) }], isError: true };
@@ -1785,7 +1798,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PATCH",
-        `/aiops/api/v2/configuration/menus/${menu_id}`,
+        `/aiops/api/v2/configuration/menus/${seg(menu_id)}`,
         updates
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -1805,7 +1818,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/menus/${menu_id}`
+        `/aiops/api/v2/configuration/menus/${seg(menu_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1840,7 +1853,7 @@ server.tool(
   },
   async ({ view_id }) => {
     try {
-      const data = await apiRequest("GET", `/aiops/api/v2/configuration/views/${view_id}`);
+      const data = await apiRequest("GET", `/aiops/api/v2/configuration/views/${seg(view_id)}`);
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
       return { content: [{ type: "text", text: String(e) }], isError: true };
@@ -1875,7 +1888,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PATCH",
-        `/aiops/api/v2/configuration/views/${view_id}`,
+        `/aiops/api/v2/configuration/views/${seg(view_id)}`,
         updates
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -1895,7 +1908,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/views/${view_id}`
+        `/aiops/api/v2/configuration/views/${seg(view_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1914,8 +1927,8 @@ server.tool(
   async ({ name, type }) => {
     try {
       const path = type
-        ? `/aiops/api/v2/configuration/views/type/${encodeURIComponent(type)}/name/${encodeURIComponent(name)}`
-        : `/aiops/api/v2/configuration/views/name/${encodeURIComponent(name)}`;
+        ? `/aiops/api/v2/configuration/views/type/${seg(type)}/name/${seg(name)}`
+        : `/aiops/api/v2/configuration/views/name/${seg(name)}`;
       const data = await apiRequest("GET", path);
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1952,7 +1965,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "GET",
-        `/aiops/api/v2/configuration/filters/${filter_id}`
+        `/aiops/api/v2/configuration/filters/${seg(filter_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -1992,7 +2005,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "PATCH",
-        `/aiops/api/v2/configuration/filters/${filter_id}`,
+        `/aiops/api/v2/configuration/filters/${seg(filter_id)}`,
         updates
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
@@ -2012,7 +2025,7 @@ server.tool(
     try {
       const data = await apiRequest(
         "DELETE",
-        `/aiops/api/v2/configuration/filters/${filter_id}`
+        `/aiops/api/v2/configuration/filters/${seg(filter_id)}`
       );
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
@@ -2051,8 +2064,8 @@ server.tool(
   async ({ name, type }) => {
     try {
       const path = type
-        ? `/aiops/api/v2/configuration/filters/type/${encodeURIComponent(type)}/name/${encodeURIComponent(name)}`
-        : `/aiops/api/v2/configuration/filters/name/${encodeURIComponent(name)}`;
+        ? `/aiops/api/v2/configuration/filters/type/${seg(type)}/name/${seg(name)}`
+        : `/aiops/api/v2/configuration/filters/name/${seg(name)}`;
       const data = await apiRequest("GET", path);
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (e) {
